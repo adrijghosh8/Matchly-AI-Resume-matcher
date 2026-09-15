@@ -1,5 +1,5 @@
 import io
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from pypdf.generic import ContentStream
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +32,7 @@ app.add_middleware(
     allow_origins=[
         "https://adrijghosh8.github.io",
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -40,7 +41,7 @@ app.add_middleware(
 
 @app.get("/")
 async def greet():
-    return {"hello":"world"}
+    return {"status": "Matchly API is running"}
 
 @app.post("/match/")
 async def match_resume(
@@ -86,9 +87,8 @@ async def match_resume(
             "Resume Skills": resume_skills,
             "JD Skills": jd_skills
         }
-    except Exception as e:
-        
-        return {
-            "Error" : f"{e}"
-        }
-    
+    except Exception as e:        
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

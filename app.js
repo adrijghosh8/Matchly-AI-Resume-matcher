@@ -32,7 +32,6 @@
 
 const API_BASE_URL = "https://matchly-ai-resume-matcher.onrender.com"; // change to your deployed backend URL
 
-document.getElementById("apiBaseNote").textContent = `API: ${API_BASE_URL}`;
 
 /* ---------------------------------------------------------------------
    State
