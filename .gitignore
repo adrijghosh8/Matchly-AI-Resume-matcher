@@ -1,0 +1,95 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
+docs/
+test/
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Testing / Coverage
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Build / Distribution
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Uploaded Files
+# =========================
+uploads/
+temp/
+tmp/
+
+# =========================
+# NLTK Data
+# =========================
+nltk_data/
+
+# =========================
+# Secrets / Local Config
+# =========================
+*.pem
+*.key
+
+# =========================
+# Large / Generated Files
+# =========================
+*.joblib
+*.pkl
+*.pickle
+
+# =========================
+# Local Database
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+.vscode/

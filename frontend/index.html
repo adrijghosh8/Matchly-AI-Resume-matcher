@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Match — Compare your resume against any job</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EDEBE4;
+    --paper:#F5F3EE;
+    --ink:#131211;
+    --line:#131211;
+    --white:#FFFFFF;
+    --muted:#6b6862;
+    --good:#3C6B35;
+    --good-bg:#E4EBDD;
+    --mid:#9C6B15;
+    --mid-bg:#F1E7D2;
+    --low:#963A2A;
+    --low-bg:#F1DFD8;
+    --radius:0;
+    --border:2px solid var(--ink);
+    --border-thin:1px solid var(--ink);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Archivo', sans-serif;
+    font-weight:900;
+    letter-spacing:-0.02em;
+    margin:0;
+    line-height:0.94;
+  }
+  p{margin:0;}
+  button{font-family:inherit;}
+  a{color:inherit;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+  /* ---------- header ---------- */
+  .site-header{
+    border-bottom:var(--border);
+    background:var(--bg);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .site-header .wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:66px;
+  }
+  .logo{
+    font-family:'Archivo', sans-serif;
+    font-weight:900;
+    font-size:19px;
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .logo .dot{width:9px;height:9px;background:var(--ink);display:inline-block;}
+  .nav-note{
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    border-bottom:var(--border);
+    padding:64px 0 0;
+    overflow:hidden;
+  }
+  .hero .wrap{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:40px;
+    align-items:center;
+  }
+  .hero h1{
+    font-size:clamp(40px, 6vw, 74px);
+  }
+  .hero p.lede{
+    margin-top:26px;
+    max-width:46ch;
+    color:var(--muted);
+    font-size:14.5px;
+  }
+  .hero-cta{
+    margin-top:34px;
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+    background:var(--ink);
+    color:var(--paper);
+    border:var(--border);
+    padding:15px 24px;
+    font-size:13.5px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .hero-cta svg{width:16px;height:16px;}
+  .hero-cta:hover{background:#2b2a28;}
+
+  .hero-art{
+    position:relative;
+    height:400px;
+  }
+  .art-block{
+    position:absolute;
+    border:var(--border);
+  }
+  .art-block.back{
+    width:78%;
+    height:72%;
+    background:var(--ink);
+    top:0;
+    left:2%;
+    transform:rotate(-2.2deg);
+  }
+  .art-block.mid{
+    width:82%;
+    height:76%;
+    background:#DAD7CD;
+    bottom:0;
+    right:0;
+    transform:rotate(1.6deg);
+  }
+  .art-cards{
+    position:absolute;
+    inset:10% 8%;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    transform:rotate(1.6deg);
+  }
+  .art-card{
+    background:var(--white);
+    border:var(--border);
+    width:42%;
+    padding:14px 14px 16px;
+  }
+  .art-card .label{
+    font-family:'Archivo',sans-serif;
+    font-weight:700;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    margin-bottom:10px;
+  }
+  .art-card .rule{height:2px;background:var(--ink);opacity:0.85;margin:7px 0;}
+  .art-card .rule:nth-child(4){width:80%;}
+  .art-card .rule:nth-child(5){width:60%;}
+  .art-plus{
+    position:absolute;
+    top:38%;
+    left:50%;
+    transform:translate(-50%,-50%) rotate(1.6deg);
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    font-size:22px;
+  }
+  .art-matchbox{
+    position:absolute;
+    left:50%;
+    bottom:6%;
+    transform:translateX(-50%) rotate(1.6deg);
+    background:var(--ink);
+    color:var(--paper);
+    border:var(--border);
+    padding:14px 20px;
+    font-family:'Archivo',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    line-height:1.5;
+    text-align:center;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+  }
+
+  /* ---------- steps strip ---------- */
+  .steps-strip{
+    display:grid;
+    grid-template-columns:repeat(3,1fr) 1.2fr;
+    border-bottom:var(--border);
+  }
+  .step-cell{
+    padding:26px 28px;
+    border-right:var(--border-thin);
+  }
+  .step-cell:last-child{border-right:none;background:var(--ink);color:var(--paper);}
+  .step-num{
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    font-size:14px;
+  }
+  .step-rule{width:22px;height:2px;background:currentColor;margin:10px 0 12px;opacity:0.6;}
+  .step-text{font-size:13px;text-transform:uppercase;letter-spacing:0.01em;}
+  .step-cell.final .step-text{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;text-transform:none;line-height:1.35;}
+
+  @media (max-width:860px){
+    .steps-strip{grid-template-columns:repeat(2,1fr);}
+    .step-cell:nth-child(2){border-right:none;}
+    .hero .wrap{grid-template-columns:1fr;}
+    .hero-art{margin-top:20px;height:320px;}
+  }
+
+  /* ---------- app shell ---------- */
+  .app-section{padding:72px 0 100px;}
+  .section-head{margin-bottom:40px;}
+  .eyebrow-num{
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .section-head h2{font-size:clamp(26px,3.4vw,36px);}
+
+  .app-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+    border:var(--border);
+  }
+  .block{
+    border-bottom:var(--border-thin);
+    padding:30px;
+  }
+  .block:last-child{border-bottom:none;}
+  .block-title{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .block-title h3{font-size:19px;}
+  .block-title .tag{font-size:11.5px;color:var(--muted);}
+
+  /* resume dropzone */
+  .dropzone{
+    border:2px dashed var(--ink);
+    padding:34px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:background 0.15s ease, border-style .15s ease;
+  }
+  .dropzone:hover, .dropzone.drag{
+    background:var(--white);
+    border-style:solid;
+  }
+  .dropzone input{display:none;}
+  .dz-title{font-family:'Archivo',sans-serif;font-weight:700;font-size:15.5px;margin-bottom:6px;}
+  .dz-sub{font-size:12.5px;color:var(--muted);}
+  .dz-formats{
+    display:inline-block;
+    margin-top:14px;
+    font-size:11px;
+    letter-spacing:0.04em;
+    color:var(--muted);
+    border:var(--border-thin);
+    padding:4px 10px;
+  }
+
+  .file-chip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border:var(--border);
+    background:var(--white);
+    padding:14px 16px;
+  }
+  .file-chip .fc-main{display:flex;align-items:center;gap:12px;min-width:0;}
+  .file-chip .fc-check{
+    width:22px;height:22px;flex:none;
+    background:var(--good);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;
+  }
+  .file-chip .fc-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .file-chip .fc-size{font-size:11.5px;color:var(--muted);}
+  .file-chip .fc-remove{
+    background:none;border:var(--border-thin);
+    padding:6px 12px;font-size:11.5px;cursor:pointer;flex:none;
+  }
+  .file-chip .fc-remove:hover{background:var(--ink);color:var(--paper);}
+
+  /* mode tabs */
+  .mode-tabs{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    border:var(--border);
+    margin-bottom:20px;
+  }
+  .mode-tab{
+    background:var(--white);
+    border:none;
+    border-right:var(--border-thin);
+    padding:14px 10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    text-align:center;
+  }
+  .mode-tab:last-child{border-right:none;}
+  .mode-tab.active{background:var(--ink);color:var(--paper);}
+  .mode-tab:not(.active):hover{background:#e4e1d9;}
+
+  .mode-panel{display:none;}
+  .mode-panel.active{display:block;}
+
+  textarea.jd-textarea{
+    width:100%;
+    min-height:170px;
+    border:var(--border);
+    background:var(--white);
+    padding:16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+    line-height:1.55;
+    resize:vertical;
+  }
+  textarea.jd-textarea:focus{outline:2px solid var(--ink);outline-offset:2px;}
+  .jd-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .jd-meta .clear-btn{
+    background:none;border:none;
+    color:var(--ink);
+    text-decoration:underline;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:11.5px;
+    padding:0;
+  }
+  .field-error{
+    margin-top:8px;
+    font-size:12px;
+    color:var(--low);
+    display:none;
+  }
+  .field-error.show{display:block;}
+
+  .role-search{
+    position:relative;
+  }
+  .role-search input{
+    width:100%;
+    border:var(--border);
+    background:var(--white);
+    padding:14px 16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+  }
+  .role-search input:focus{outline:2px solid var(--ink);outline-offset:2px;}
+  .role-results{
+    border:var(--border-thin);
+    border-top:none;
+    background:var(--white);
+    max-height:220px;
+    overflow-y:auto;
+  }
+  .role-option{
+    padding:12px 16px;
+    font-size:13px;
+    cursor:pointer;
+    border-bottom:var(--border-thin);
+  }
+  .role-option:last-child{border-bottom:none;}
+  .role-option:hover{background:#e9e6dd;}
+  .role-empty{
+    padding:16px;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .role-preview{
+    margin-top:16px;
+    border:var(--border);
+    background:var(--white);
+    padding:18px;
+  }
+  .role-preview h4{font-family:'Archivo',sans-serif;font-size:16px;margin-bottom:12px;}
+  .role-preview .skill-group{margin-bottom:10px;}
+  .role-preview .skill-group .sg-label{font-size:11px;text-transform:uppercase;letter-spacing:0.03em;color:var(--muted);margin-bottom:6px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    border:var(--border-thin);
+    padding:4px 10px;
+    font-size:12px;
+    background:var(--paper);
+  }
+  .use-role-btn{
+    margin-top:14px;
+    width:100%;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .use-role-btn:hover{background:#2b2a28;}
+  .role-selected-chip{
+    border:var(--border);
+    background:var(--good-bg);
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .notice{
+    border:var(--border-thin);
+    background:var(--mid-bg);
+    padding:12px 14px;
+    font-size:12px;
+    color:#5b4210;
+    margin-top:14px;
+  }
+
+  /* analyze bar */
+  .analyze-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .analyze-status{font-size:12px;color:var(--muted);max-width:46ch;}
+  .analyze-btn{
+    background:var(--ink);
+    color:var(--paper);
+    border:var(--border);
+    padding:16px 30px;
+    font-family:'Archivo',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+  }
+  .analyze-btn:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+  }
+  .analyze-btn:not(:disabled):hover{background:#2b2a28;}
+  .spinner{
+    width:14px;height:14px;
+    border:2px solid var(--paper);
+    border-top-color:transparent;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+    display:none;
+  }
+  .analyze-btn.loading .spinner{display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .error-banner{
+    border:var(--border);
+    background:var(--low-bg);
+    color:var(--low);
+    padding:16px 18px;
+    font-size:13px;
+    margin-top:18px;
+    display:none;
+  }
+  .error-banner.show{display:block;}
+
+  /* results */
+  .results{display:none;}
+  .results.show{display:block;}
+  .results-source{
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:22px;
+    padding-bottom:18px;
+    border-bottom:var(--border-thin);
+  }
+  .results-source strong{color:var(--ink);}
+  .score-row{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:36px;
+    align-items:center;
+    margin-bottom:30px;
+  }
+  .score-dial{
+    width:150px;height:150px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    flex:none;
+  }
+  .score-dial::after{
+    content:"";
+    position:absolute;
+    inset:10px;
+    border-radius:50%;
+    background:var(--paper);
+  }
+  .score-dial .score-num{
+    position:relative;
+    z-index:1;
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    font-size:34px;
+  }
+  .score-label{
+    font-family:'Archivo',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    margin-bottom:6px;
+  }
+  .score-sub{font-size:12.5px;color:var(--muted);}
+
+  .metric-bars{display:grid;gap:16px;margin-bottom:30px;}
+  .metric-bar-row{}
+  .metric-bar-head{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    margin-bottom:6px;
+  }
+  .metric-bar-track{
+    height:10px;
+    background:var(--white);
+    border:var(--border-thin);
+  }
+  .metric-bar-fill{height:100%;background:var(--ink);}
+
+  .skills-cols{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+  @media (max-width:640px){.skills-cols{grid-template-columns:1fr;}}
+  .skills-col h4{
+    font-family:'Archivo',sans-serif;
+    font-size:14px;
+    margin-bottom:12px;
+  }
+  .skills-col.missing h4{color:var(--low);}
+  .skills-col.matched h4{color:var(--good);}
+
+  .footer{
+    border-top:var(--border);
+    padding:26px 0;
+    font-size:11.5px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .visually-hidden{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>RESUME MATCH</div>
+    <div class="nav-note">Resume ↔ job description analysis</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>YOUR RESUME.<br>THE RIGHT FIT.</h1>
+      <p class="lede">Compare your resume against any job description — pasted, uploaded, or picked from a role list — and see exactly where you match and where you don't.</p>
+      <a class="hero-cta" href="#analyzer">
+        Start analyzing
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="art-block back"></div>
+      <div class="art-block mid"></div>
+      <div class="art-cards">
+        <div class="art-card">
+          <div class="label">Resume</div>
+          <div class="rule"></div><div class="rule"></div><div class="rule"></div><div class="rule"></div><div class="rule"></div>
+        </div>
+        <div class="art-card">
+          <div class="label">Job Description</div>
+          <div class="rule"></div><div class="rule"></div><div class="rule"></div><div class="rule"></div><div class="rule"></div>
+        </div>
+      </div>
+      <div class="art-plus">+</div>
+      <div class="art-matchbox">Match<br>Analyze<br>Improve</div>
+    </div>
+  </div>
+</section>
+
+<div class="steps-strip">
+  <div class="step-cell">
+    <div class="step-num">01</div>
+    <div class="step-rule"></div>
+    <div class="step-text">Upload your resume</div>
+  </div>
+  <div class="step-cell">
+    <div class="step-num">02</div>
+    <div class="step-rule"></div>
+    <div class="step-text">Add a job description</div>
+  </div>
+  <div class="step-cell">
+    <div class="step-num">03</div>
+    <div class="step-rule"></div>
+    <div class="step-text">Get your match results</div>
+  </div>
+  <div class="step-cell final">
+    <div class="step-text">A clearer way to see<br>where you actually stand.</div>
+  </div>
+</div>
+
+<section class="app-section" id="analyzer">
+  <div class="wrap">
+
+    <div class="app-grid">
+
+      <!-- RESUME -->
+      <div class="block">
+        <div class="block-title">
+          <h3>Resume</h3>
+          <span class="tag">Required · PDF or DOCX</span>
+        </div>
+
+        <div id="resumeDropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload your resume, PDF or DOCX">
+          <div class="dz-title">Drag &amp; drop your resume here</div>
+          <div class="dz-sub">or click to browse files</div>
+          <div class="dz-formats">PDF / DOCX</div>
+          <input type="file" id="resumeInput" accept=".pdf,.docx">
+        </div>
+
+        <div id="resumeChip" class="file-chip" style="display:none;">
+          <div class="fc-main">
+            <span class="fc-check">✓</span>
+            <div>
+              <div class="fc-name" id="resumeName"></div>
+              <div class="fc-size" id="resumeSize"></div>
+            </div>
+          </div>
+          <button class="fc-remove" id="resumeRemove" type="button">Remove</button>
+        </div>
+        <div class="field-error" id="resumeError">Please upload a resume as a PDF or DOCX file.</div>
+      </div>
+
+      <!-- JOB DESCRIPTION -->
+      <div class="block">
+        <div class="block-title">
+          <h3>Job description</h3>
+          <span class="tag">Required · choose one source</span>
+        </div>
+
+        <div class="mode-tabs" role="tablist" aria-label="Job description input mode">
+          <button class="mode-tab active" data-mode="paste" role="tab" aria-selected="true">Paste JD</button>
+          <button class="mode-tab" data-mode="upload" role="tab" aria-selected="false">Upload PDF/DOCX</button>
+          <button class="mode-tab" data-mode="role" role="tab" aria-selected="false">Select role</button>
+        </div>
+
+        <!-- PASTE -->
+        <div class="mode-panel active" data-panel="paste">
+          <textarea class="jd-textarea" id="jdTextarea" placeholder="Paste or type the job description here…" aria-label="Job description text"></textarea>
+          <div class="jd-meta">
+            <span id="jdCharCount">0 characters</span>
+            <button class="clear-btn" id="jdClearBtn" type="button">Clear</button>
+          </div>
+          <div class="field-error" id="jdTextError">Job descriptions need at least 40 characters — add a bit more detail.</div>
+        </div>
+
+        <!-- UPLOAD -->
+        <div class="mode-panel" data-panel="upload">
+          <div id="jdDropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload job description, PDF or DOCX">
+            <div class="dz-title">Drag &amp; drop your file here</div>
+            <div class="dz-sub">or click to browse files</div>
+            <div class="dz-formats">PDF / DOCX</div>
+            <input type="file" id="jdInput" accept=".pdf,.docx">
+          </div>
+          <div id="jdChip" class="file-chip" style="display:none;margin-top:0;">
+            <div class="fc-main">
+              <span class="fc-check">✓</span>
+              <div>
+                <div class="fc-name" id="jdName"></div>
+                <div class="fc-size" id="jdSize"></div>
+              </div>
+            </div>
+            <button class="fc-remove" id="jdRemove" type="button">Remove</button>
+          </div>
+          <div class="field-error" id="jdFileError">Please upload a job description as a PDF or DOCX file.</div>
+        </div>
+
+        <!-- ROLE -->
+        <div class="mode-panel" data-panel="role">
+          <div id="roleSearchWrap" class="role-search">
+            <input type="text" id="roleSearchInput" placeholder="Search job roles…" autocomplete="off" aria-label="Search job roles">
+            <div class="role-results" id="roleResults"></div>
+          </div>
+          <div id="rolePreview"></div>
+          <div id="roleSelectedChip" style="display:none;" class="role-selected-chip">
+            <div>
+              <strong id="roleSelectedName"></strong>
+              <div class="fc-size">Predefined job profile</div>
+            </div>
+            <button class="fc-remove" id="roleRemove" type="button">Remove</button>
+          </div>
+          <div class="notice">
+            Predefined roles aren't wired to the backend yet — <code>/match/</code> only accepts an uploaded resume and job description file today. This tab is fully built so real role data and a matching endpoint can be dropped in later without touching the rest of the app. Selecting a role currently disables analysis.
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYZE -->
+      <div class="block">
+        <div class="analyze-bar">
+          <div class="analyze-status" id="analyzeStatus">Add a resume and a job description to continue.</div>
+          <button class="analyze-btn" id="analyzeBtn" disabled>
+            <span class="spinner"></span>
+            <span id="analyzeBtnLabel">Analyze match</span>
+          </button>
+        </div>
+        <div class="error-banner" id="apiErrorBanner"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="block results" id="resultsBlock">
+        <div class="results-source" id="resultsSource"></div>
+
+        <div class="score-row">
+          <div class="score-dial" id="scoreDial">
+            <div class="score-num" id="scoreNum">—</div>
+          </div>
+          <div>
+            <div class="score-label" id="scoreLabel">—</div>
+            <div class="score-sub">Weighted from skill coverage and overall text similarity.</div>
+          </div>
+        </div>
+
+        <div class="metric-bars">
+          <div class="metric-bar-row">
+            <div class="metric-bar-head"><span>Skill match</span><span id="skillPct">0%</span></div>
+            <div class="metric-bar-track"><div class="metric-bar-fill" id="skillBar" style="width:0%"></div></div>
+          </div>
+          <div class="metric-bar-row">
+            <div class="metric-bar-head"><span>Text similarity</span><span id="tfidfPct">0%</span></div>
+            <div class="metric-bar-track"><div class="metric-bar-fill" id="tfidfBar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="skills-cols">
+          <div class="skills-col matched">
+            <h4>Matched skills</h4>
+            <div class="chip-row" id="matchedSkills"></div>
+          </div>
+          <div class="skills-col missing">
+            <h4>Missing skills</h4>
+            <div class="chip-row" id="missingSkills"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;width:100%;">
+    <span>Resume Match — analysis runs against your local FastAPI backend.</span>
+    <span id="apiBaseNote"></span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
