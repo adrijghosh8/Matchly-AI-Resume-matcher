@@ -2,6 +2,7 @@ import io
 from fastapi import FastAPI, UploadFile, File
 from pypdf.generic import ContentStream
 from pathlib import Path
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from backend.modules.file_uploads import (
@@ -26,6 +27,13 @@ from backend.modules.similarity import(
 SKILLS_PATH = Path("backend/data/skills.txt")
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def greet():
